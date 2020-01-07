@@ -51,7 +51,8 @@
 
         <!-- Choosing the stub (left side) -->
         <TextBlock Grid.Column="1" Grid.Row="4" Text="Stub template" />
-        <ComboBox Name="cmbStubs" Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="1" ItemsSource="{Binding stubs}"/>
+        <ComboBox Name="cmbStubs" Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="1" 
+                  ItemsSource="{Binding stubs}" DropDownClosed="ComboBox_DropDownClosed"/>
 
         <!--Display the current header info (left side after seperator) -->
         <TabControl Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2" 
@@ -59,13 +60,13 @@
             <TabItem Header=".cpp">
                 <ScrollViewer>
                     <TextBox x:Name="ViewCPP" Text="{Binding Path=CPPField, 
-                        Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxWidth="250" FontSize="12"/>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header=".h">
                 <ScrollViewer>
                     <TextBox x:Name="ViewH" Text="{Binding Path=HPPField, 
-                        Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxWidth="250" FontSize="12"/>
                 </ScrollViewer>
             </TabItem>
         </TabControl>

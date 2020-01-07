@@ -127,6 +127,12 @@ namespace StubMaker
     /// </summary>
     public partial class MainWindow : Window
     {
+        enum FileMode
+        {
+            cpp,
+            h
+        }
+
         EntryFields entryfields;
         public MainWindow()
         {
@@ -215,6 +221,71 @@ namespace StubMaker
             }
         }
 
+        private void ComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            if (cmbStubs.SelectedItem == null)
+                return;
+
+            string stubTemplate = cmbStubs.SelectedItem.ToString();
+
+            // Check if empty
+            if(stubTemplate == String.Empty)
+            {
+                return;
+            }
+
+            // We want to load both the .c and the .h file of the given name
+
+            // Get all the files in the stub folder
+            var fileNames = Directory.GetFiles(stubFolder.Text);
+
+            foreach (string fileName in fileNames)
+            {
+                if(fileName.Contains(stubTemplate))
+                {
+                    // If its a .h
+                    if(fileName.Contains(".h"))
+                    {
+                        // Read the file and set to the string
+                        StreamReader reader = new StreamReader(fileName);
+                        try
+                        {
+                            entryfields.HPPField = reader.ReadToEnd();
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Failed reading of file");
+                        }
+
+                        finally
+                        {
+                            reader.Close();
+                        }
+                    }
+                    // Cpp
+                    else if(fileName.Contains(".cpp"))
+                    {
+                        // Read the file and set to cpp
+                        // Read the file and set to the string
+                        StreamReader reader = new StreamReader(fileName);
+                        try
+                        {
+                            entryfields.CPPField = reader.ReadToEnd();
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Failed reading of file");
+                        }
+
+                        finally
+                        {
+                            reader.Close();
+                        }
+                    }
+                }
+            }
+        }
+
         // Takes in an of filenames (files in a directory), 
         // and if there is the stub word remove it and place into a new return unique array
         private HashSet<string> process_files(string [] fileNames)
@@ -226,15 +297,39 @@ namespace StubMaker
             {
                 string fileN = System.IO.Path.GetFileName(fileName);
                 fileN = System.IO.Path.GetFileNameWithoutExtension(fileN);
-                string filenamelower = fileN.ToLower();
                 // Check if it has stub in it.
-                if(filenamelower.Contains(stub))
+                if(fileN.Contains(stub) || fileN.Contains("Stub"))
                 {
                     // Remove the stub word and add into return value
-                    returnValue.Add(filenamelower.Replace(stub, ""));
+                    returnValue.Add(fileN);
                 }
             }
             return returnValue;
+        }
+
+        private string UpdateFileHeader(string currentHeader, EntryFields entryfields, FileMode filemode)
+        {
+            string resultHeader;
+            string fileextension;
+            string signature = @"// -----------------------------------------------------------------------------
+// @Project Name    {0}
+// @filename        {1}.{2}
+// @author	        {3}
+// @date       	    {4}
+// @brief           {5}
+//
+// Copyright � 2019 DigiPen, All rights reserved.
+// -----------------------------------------------------------------------------";
+
+            if (filemode == FileMode.cpp)
+                fileextension = ".cpp";
+            else
+                fileextension = ".h";
+
+            resultHeader = String.Format(signature, entryfields.ProjectField, entryfields.NameField, fileextension, entryfields.AuthorField, DateTime.Now.ToString(@"MM\/dd\/yyyy h\:mm tt"),
+                entryfields.BriefField);
+
+            return resultHeader;
         }
     }
 }
